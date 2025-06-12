@@ -52,15 +52,48 @@ php artisan vendor:publish --tag=fixit-config
 
 ```php
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption Settings
+    |--------------------------------------------------------------------------
+    */
     'encryption' => [
-        'enabled' => false,
+        'enabled' => env('FIXIT_ENCRYPTION', false),
+        'key' => env('FIXIT_ENCRYPTION_KEY'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email Notification Settings
+    |--------------------------------------------------------------------------
+    */
     'notifications' => [
-        'send_on_error' => false,
-        'email' => 'your@email.com',
+        'driver' => env('FIXIT_NOTIFICATION_DRIVER', 'email'),
+        'send_on_error' => env('FIXIT_SEND_EMAIL', false),
+        'email' => env('FIXIT_NOTIFICATION_EMAIL', 'admin@example.com'),
+        'slack_webhook' => "",
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Error Logging Settings
+    |--------------------------------------------------------------------------
+    */
     'logging' => [
         'table' => 'fixit_errors',
+        'status_default' => 'not_fixed',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Future Scalability
+    |--------------------------------------------------------------------------
+    | Use these fields for upcoming features like retention, log channels, etc.
+    */
+    'retention' => [
+        'enabled' => false,
+        'days' => 30,
     ],
 ];
 ```
@@ -163,8 +196,3 @@ app()->bind(FixitAlertInterface::class, SlackAlert::class);
 
 See [Releases](https://github.com/onyiimesi/coedev-fixit/releases) for full changelog.
 
----
-
-## 📄 License
-
-MIT © [Your Name or Company](https://github.com/onyiimesi)
