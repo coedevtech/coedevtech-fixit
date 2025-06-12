@@ -1,0 +1,44 @@
+<?php
+
+namespace Fixit\Listeners;
+
+use Fixit\Contracts\FixitAlertInterface;
+use Throwable;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Config;
+use Fixit\Models\FixitError;
+use Illuminate\Support\Facades\Crypt;
+
+class LogExceptionToDb
+{
+    public function __construct(
+        protected FixitAlertInterface $notifier
+    ) {}
+
+    public function handle(Throwable $e): void
+    {
+        try {
+            $data = [
+                'url'      => Request::fullUrl(),
+                'request'  => Request::all(),
+                'response' => ['message' => $e->getMessage()],
+                'ip'       => Request::ip(),
+                'status'   => 'not_fixed',
+            ];
+
+            if (Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY')) {
+                $data = array_map(fn ($item) => Crypt::encryptString(json_encode($item)), $data);
+            }
+
+            FixitError::create($data);
+
+            if (Config::get('fixit.notifications.send_on_error')) {
+                $this->notifier->send($e->getMessage(), $e);
+            }
+
+        } catch (\Throwable $fail) {
+            // If logging fails, send fallback alert with reason
+            $this->notifier->send("FixIt failed to log exception: {$fail->getMessage()}", $fail);
+        }
+    }
+}
