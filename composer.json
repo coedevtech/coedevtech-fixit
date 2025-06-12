@@ -1,5 +1,5 @@
 {
-    "name": "coedev-fixit",
+    "name": "coedev/fixit",
     "description": "Package for all to get all errors at a go.",
     "keywords": [
         "laravel",
