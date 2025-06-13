@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
-        'name' => 'coedev/fixit',
+        'name' => 'coedevtech/fixit',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e3b984d24fd5a8aee3b5131a51e43e947be4287b',
+        'reference' => '157e8cc3397ee0a002f0a45d4c67eff6e871b415',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -37,10 +37,10 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'coedev/fixit' => array(
+        'coedevtech/fixit' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e3b984d24fd5a8aee3b5131a51e43e947be4287b',
+            'reference' => '157e8cc3397ee0a002f0a45d4c67eff6e871b415',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
