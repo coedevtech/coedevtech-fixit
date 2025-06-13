@@ -27,7 +27,7 @@
 ## 📦 Installation
 
 ```bash
-composer require coedev/fixit
+composer require coedevtech/fixit
 ```
 
 Then publish and install:

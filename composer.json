@@ -1,5 +1,5 @@
 {
-    "name": "coedev/fixit",
+    "name": "coedevtech/fixit",
     "description": "A Laravel package that captures and logs all exceptions into a database table — with optional encryption, email alerts, and a powerful CLI interface. Designed to give you full visibility into unhandled errors, without clutter or guesswork",
     "keywords": [
         "laravel",
