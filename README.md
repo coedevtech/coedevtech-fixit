@@ -194,5 +194,5 @@ app()->bind(FixitAlertInterface::class, SlackAlert::class);
 
 ## 📝 Changelog
 
-See [Releases](https://github.com/onyiimesi/coedev-fixit/releases) for full changelog.
+See [Releases](https://github.com/coedevtech/coedevtech-fixit/releases) for full changelog.
 
