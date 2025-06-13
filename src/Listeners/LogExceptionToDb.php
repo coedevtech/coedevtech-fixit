@@ -19,11 +19,15 @@ class LogExceptionToDb
     {
         try {
             $data = [
-                'url'      => Request::fullUrl(),
-                'request'  => Request::all(),
-                'response' => ['message' => $e->getMessage()],
-                'ip'       => Request::ip(),
-                'status'   => 'not_fixed',
+                'url'       => Request::fullUrl(),
+                'request'   => Request::all(),
+                'response'  => ['message' => $e->getMessage()],
+                'ip'        => Request::ip(),
+                'status'    => 'not_fixed',
+                'exception' => get_class($e),
+                'file'      => $e->getFile(),
+                'line'      => $e->getLine(),
+                'trace'     => $e->getTraceAsString(),
             ];
 
             if (Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY')) {
@@ -37,7 +41,6 @@ class LogExceptionToDb
             }
 
         } catch (\Throwable $fail) {
-            // If logging fails, send fallback alert with reason
             $this->notifier->send("FixIt failed to log exception: {$fail->getMessage()}", $fail);
         }
     }
