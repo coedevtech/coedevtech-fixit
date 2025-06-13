@@ -2,12 +2,12 @@
 
 namespace Fixit\Listeners;
 
-use Fixit\Contracts\FixitAlertInterface;
 use Throwable;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Config;
+use Fixit\Facades\Fixit;
 use Fixit\Models\FixitError;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Request;
+use Fixit\Contracts\FixitAlertInterface;
 
 class LogExceptionToDb
 {
@@ -31,7 +31,7 @@ class LogExceptionToDb
             ];
 
             if (Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY')) {
-                $data = array_map(fn ($item) => Crypt::encryptString(json_encode($item)), $data);
+                $data = array_map(fn ($item) => Fixit::encrypt($item), $data);
             }
 
             FixitError::create($data);

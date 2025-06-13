@@ -56,6 +56,10 @@ class FixitServiceProvider extends ServiceProvider
             };
         });
 
+        $this->app->singleton('fixit', function () {
+            return new \Fixit\Support\SecureEncryptor();
+        });
+
         $this->mergeConfigFrom(__DIR__.'/../config/fixit.php', 'fixit');
     }
 }
