@@ -3,7 +3,7 @@ name: Release FixIt
 on:
   push:
     branches:
-      - main
+      - mains
 
 jobs:
   release:
