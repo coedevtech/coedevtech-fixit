@@ -12,7 +12,7 @@ class SyncFixitConfig extends Command
     public function handle()
     {
         $configPath = config_path('fixit.php');
-        $default = require __DIR__ . '/../../config/fixit.php';
+        $defaultPath = __DIR__ . '/../../config/fixit.php';
 
         if (!file_exists($configPath)) {
             $this->warn("config/fixit.php not found. Run:");
@@ -20,8 +20,11 @@ class SyncFixitConfig extends Command
             return;
         }
 
-        $user = include $configPath;
-        $missing = $this->findMissingKeys($user, $default);
+        $defaultRaw = file_get_contents($defaultPath);
+        $defaultArray = include_once $defaultPath;
+        $userArray = include_once $configPath;
+
+        $missing = $this->findMissingKeys($userArray, $defaultArray);
 
         if (empty($missing)) {
             $this->info("✅ config/fixit.php is up to date.");
@@ -29,13 +32,15 @@ class SyncFixitConfig extends Command
         }
 
         if ($this->option('write')) {
-            $this->appendToConfig($configPath, $missing);
+            $this->appendToConfig($configPath, $missing, $defaultRaw);
             $this->info("✅ Missing keys were appended to config/fixit.php.");
         } else {
             $this->warn("⚠️ Missing config keys detected:");
             foreach ($missing as $key => $value) {
-                $this->line("\nAdd to `config/fixit.php`:\n");
-                $this->line("    '$key' => " . $this->toShortArraySyntax($value) . ",");
+                $this->line("
+Add to `config/fixit.php`:
+");
+                $this->line("    '$key' => [...],");
             }
         }
     }
@@ -51,34 +56,29 @@ class SyncFixitConfig extends Command
         return $missing;
     }
 
-    protected function toShortArraySyntax(array $array): string
-    {
-        $export = var_export($array, true);
-        $export = preg_replace([
-            '/^(\s*)array \(/m', '/\)(,?)$/m'
-        ], ['[', ']$1'], $export);
-        $export = preg_replace('/array \(/', '[', $export);
-        return str_replace(')', ']', $export);
-    }
-
-    protected function appendToConfig(string $filePath, array $missing): void
+    protected function appendToConfig(string $filePath, array $missing, string $defaultRaw): void
     {
         $original = file_get_contents($filePath);
 
-        // Insert before the closing `];`
+        $insertion = '';
+
+        foreach (array_keys($missing) as $key) {
+            if (preg_match("/\/\*.*?\*\/\s*['\"]{$key}['\"]\s*=>\s*\[[^\]]+\],/s", $defaultRaw, $match)) {
+                $insertion .= "\n" . trim($match[0]) . "\n";
+            } elseif (preg_match("/['\"]{$key}['\"]\s*=>\s*\[[^\]]+\],/s", $defaultRaw, $match)) {
+                $insertion .= "\n    " . trim($match[0]) . "\n";
+            } else {
+                $this->warn("Couldn't extract raw block for config key: $key");
+            }
+        }
+
         $closingPos = strrpos($original, '];');
         if ($closingPos === false) {
             $this->error("Failed to locate end of config array.");
             return;
         }
 
-        $insertion = '';
-        foreach ($missing as $key => $value) {
-            $insertion .= "\n    '$key' => " . $this->toShortArraySyntax($value) . ",";
-        }
-
-        $updated = substr($original, 0, $closingPos) . rtrim($insertion, ',') . "\n" . substr($original, $closingPos);
-
+        $updated = substr($original, 0, $closingPos) . rtrim($insertion, ",\n") . "\n" . substr($original, $closingPos);
         file_put_contents($filePath, $updated);
     }
 }
