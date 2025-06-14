@@ -2,6 +2,7 @@
 
 namespace Fixit\Commands;
 
+use Fixit\Enum\ErrorStatus;
 use Illuminate\Console\Command;
 use Fixit\Models\FixitError;
 
@@ -17,8 +18,8 @@ class FixitClear extends Command
     {
         $query = FixitError::query();
 
-        if ($this->option('only') === 'fixed') {
-            $query->where('status', 'fixed');
+        if ($this->option('only') === ErrorStatus::FIXED->value) {
+            $query->where('status', ErrorStatus::FIXED->value);
         }
 
         if ($before = $this->option('before')) {

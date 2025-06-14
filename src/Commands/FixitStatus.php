@@ -2,6 +2,7 @@
 
 namespace Fixit\Commands;
 
+use Fixit\Enum\ErrorStatus;
 use Illuminate\Console\Command;
 use Fixit\Models\FixitError;
 
@@ -13,7 +14,7 @@ class FixitStatus extends Command
     public function handle()
     {
         $total = FixitError::count();
-        $fixed = FixitError::where('status', 'fixed')->count();
+        $fixed = FixitError::where('status', ErrorStatus::FIXED->value)->count();
         $last  = FixitError::latest()->first()?->created_at;
 
         $this->info("FixIt Status\n=============");

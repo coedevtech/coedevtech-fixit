@@ -27,6 +27,8 @@ class FixitServiceProvider extends ServiceProvider
                 \Fixit\Commands\FixitClear::class,
                 \Fixit\Commands\PurgeOldLogs::class,
                 \Fixit\Commands\FixitReportCommand::class,
+                \Fixit\Commands\SyncFixitConfig::class,
+                \Fixit\Commands\SyncFixitMigrations::class,
             ]);
         }
 

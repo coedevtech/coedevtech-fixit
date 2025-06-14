@@ -3,7 +3,6 @@
 namespace Fixit\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
 use Fixit\Models\FixitError;
 use Carbon\Carbon;
 

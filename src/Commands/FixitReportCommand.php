@@ -2,6 +2,7 @@
 
 namespace Fixit\Commands;
 
+use Fixit\Enum\ErrorStatus;
 use Illuminate\Console\Command;
 use Fixit\Models\FixitError;
 
@@ -57,7 +58,7 @@ class FixitReportCommand extends Command
             return;
         }
 
-        $error->status = 'fixed';
+        $error->status = ErrorStatus::FIXED->value;
         $error->save();
 
         $this->info("✅ Error ID $id marked as fixed.");
