@@ -44,4 +44,10 @@ return [
         'enabled' => false,
         'days' => 30,
     ],
+
+    'auto_fix' => [
+        'enabled' => true,
+        'check_interval_minutes' => 2,
+        'inactivity_days_to_fix' => 2,
+    ],
 ];

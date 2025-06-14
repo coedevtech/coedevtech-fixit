@@ -5,6 +5,8 @@ namespace Fixit;
 use Fixit\Alerts\EmailAlert;
 use Fixit\Alerts\SlackAlert;
 use Fixit\Contracts\FixitAlertInterface;
+use Fixit\Enum\ErrorStatus;
+use Fixit\Models\FixitError;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,6 +36,22 @@ class FixitServiceProvider extends ServiceProvider
             $handler->reportable(function (\Throwable $e) {
                 app(\Fixit\Listeners\LogExceptionToDb::class)->handle($e);
             });
+        }
+
+        if (!app()->runningInConsole() && config('fixit.auto_fix.enabled')) {
+            $key = 'fixit:auto-status-check';
+    
+            if (!cache()->has($key)) {
+                $days = config('fixit.auto_fix.inactivity_days_to_fix', 2);
+    
+                FixitError::where('status', ErrorStatus::NOT_FIXED->value)
+                    ->where('last_seen_at', '<', now()->subDays($days))
+                    ->update(['status' => ErrorStatus::FIXED->value]);
+    
+                cache()->put($key, now(), now()->addMinutes(
+                    config('fixit.auto_fix.check_interval_minutes', 10)
+                ));
+            }
         }
 
         if (config('fixit.encryption.enabled') && empty(config('fixit.encryption.key'))) {
