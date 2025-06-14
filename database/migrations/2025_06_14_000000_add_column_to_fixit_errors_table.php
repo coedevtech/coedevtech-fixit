@@ -8,9 +8,17 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('fixit_errors', function (Blueprint $table) {
-            $table->string('fingerprint')->nullable()->index();
-            $table->timestamp('last_seen_at')->nullable();
-            $table->integer('occurrences')->default(1);
+            if (!Schema::hasColumn('fixit_errors', 'fingerprint')) {
+                $table->string('fingerprint')->nullable()->index()->after('trace');
+            }
+
+            if (!Schema::hasColumn('fixit_errors', 'last_seen_at')) {
+                $table->timestamp('last_seen_at')->nullable()->after('fingerprint');
+            }
+            
+            if (!Schema::hasColumn('fixit_errors', 'occurrences')) {
+                $table->integer('occurrences')->default(1)->after('last_seen_at');
+            }
         });
     }
 
