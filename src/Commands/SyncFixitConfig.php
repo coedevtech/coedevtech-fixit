@@ -16,13 +16,21 @@ class SyncFixitConfig extends Command
 
         if (!file_exists($configPath)) {
             $this->warn("config/fixit.php not found. Run:");
-            $this->line("php artisan vendor:publish --tag=config");
+            $this->line("php artisan vendor:publish --tag=fixit-config");
             return;
         }
 
-        $defaultRaw = file_get_contents($defaultPath);
-        $defaultArray = include_once $defaultPath;
-        $userArray = include_once $configPath;
+        $defaultArray = include $defaultPath;
+        if (!is_array($defaultArray)) {
+            $this->error("❌ Failed to load default config from package.");
+            return;
+        }
+
+        $userArray = include $configPath;
+        if (!is_array($userArray)) {
+            $this->error("❌ Failed to load user config: config/fixit.php must return an array.");
+            return;
+        }
 
         $missing = $this->findMissingKeys($userArray, $defaultArray);
 
@@ -32,14 +40,12 @@ class SyncFixitConfig extends Command
         }
 
         if ($this->option('write')) {
-            $this->appendToConfig($configPath, $missing, $defaultRaw);
+            $this->appendToConfig($configPath, $missing);
             $this->info("✅ Missing keys were appended to config/fixit.php.");
         } else {
             $this->warn("⚠️ Missing config keys detected:");
             foreach ($missing as $key => $value) {
-                $this->line("
-Add to `config/fixit.php`:
-");
+                $this->line("\nAdd to `config/fixit.php`:\n");
                 $this->line("    '$key' => [...],");
             }
         }
@@ -56,29 +62,95 @@ Add to `config/fixit.php`:
         return $missing;
     }
 
-    protected function appendToConfig(string $filePath, array $missing, string $defaultRaw): void
+    protected function appendToConfig(string $filePath, array $missingKeys): void
     {
         $original = file_get_contents($filePath);
 
-        $insertion = '';
-
-        foreach (array_keys($missing) as $key) {
-            if (preg_match("/\/\*.*?\*\/\s*['\"]{$key}['\"]\s*=>\s*\[[^\]]+\],/s", $defaultRaw, $match)) {
-                $insertion .= "\n" . trim($match[0]) . "\n";
-            } elseif (preg_match("/['\"]{$key}['\"]\s*=>\s*\[[^\]]+\],/s", $defaultRaw, $match)) {
-                $insertion .= "\n    " . trim($match[0]) . "\n";
-            } else {
-                $this->warn("Couldn't extract raw block for config key: $key");
-            }
-        }
-
+        // Add trailing comma if missing before the final `];`
         $closingPos = strrpos($original, '];');
         if ($closingPos === false) {
-            $this->error("Failed to locate end of config array.");
+            $this->error("❌ Could not find closing bracket of the config array.");
             return;
         }
 
-        $updated = substr($original, 0, $closingPos) . rtrim($insertion, ",\n") . "\n" . substr($original, $closingPos);
+        $beforeClosing = rtrim(substr($original, 0, $closingPos));
+        if (!preg_match('/,\s*$/', $beforeClosing)) {
+            $beforeClosing .= ',';
+        }
+
+        $afterClosing = substr($original, $closingPos);
+
+        $insertion = "\n\n";
+        foreach ($missingKeys as $key => $value) {
+            if (preg_match('/[\'"]' . preg_quote($key, '/') . '[\'"]\s*=>/', $original)) {
+                $this->warn("❌ '$key' already exists in config. Skipping...");
+                continue;
+            }
+
+            $insertion .= $this->getRawConfigStringForKey($key) . "\n\n";
+        }
+
+        $updated = $beforeClosing . $insertion . $afterClosing;
         file_put_contents($filePath, $updated);
+    }
+
+    protected function getRawConfigStringForKey(string $key): string
+    {
+        $comment = $this->getCommentForKey($key);
+        $formatted = $this->formatArray($key);
+        return $comment . "\n" . $formatted;
+    }
+
+    protected function getCommentForKey(string $key): string
+    {
+        return match ($key) {
+            'auto_fix' => <<<EOT
+                /*
+                |--------------------------------------------------------------------------
+                | Automatic Fix Status
+                |--------------------------------------------------------------------------
+                | Automatically marks old errors as "fixed" if they haven't reoccurred
+                | in a defined number of days. This helps keep your error log clean
+                | by closing stale issues.
+                |
+                | - `enabled`: Turns the feature on/off
+                | - `check_interval_minutes`: How often the check should run (in minutes)
+                | - `inactivity_days_to_fix`: Days without reoccurrence before marking as fixed
+                */
+            EOT,
+                        'ai' => <<<EOT
+                /*
+                |--------------------------------------------------------------------------
+                | AI-Powered Suggestions (Optional)
+                |--------------------------------------------------------------------------
+                | Users can enable AI-generated suggestions for fixing errors. To use this,
+                | they must provide a proxy endpoint or their own OpenAI credentials.
+                */
+            EOT,
+            default => ''
+        };
+    }
+
+    protected function formatArray(string $key): string
+    {
+        return match ($key) {
+            'auto_fix' => <<<PHP
+                '$key' => [
+                    'enabled' => true,
+                    'check_interval_minutes' => 2,
+                    'inactivity_days_to_fix' => 2,
+                ],
+            PHP,
+                        'ai' => <<<PHP
+                '$key' => [
+                    'enabled' => env('FIXIT_AI_ENABLED', false),
+                    'provider' => env('FIXIT_AI_PROVIDER', 'openai'),
+                    'api_url' => env('FIXIT_AI_API_URL', null),
+                    'api_key' => env('FIXIT_AI_API_KEY', null),
+                    'timeout' => env('FIXIT_AI_TIMEOUT', 10),
+                ],
+            PHP,
+            default => "    '$key' => [],"
+        };
     }
 }
