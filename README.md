@@ -11,6 +11,8 @@
 - ⚙️ Configurable notification system (email-based out of the box)
 - 🧪 Built-in Pest tests
 - 📊 Artisan CLI: `fixit:report` to view, filter, and fix errors
+- ✍️ `fixit:sync-config` to merge missing config keys
+- 🛠️ `fixit:sync-migrations` to publish and run package migrations
 - 💡 Extensible alert interface (use your own Slack, Discord, etc.)
 
 ---
@@ -48,54 +50,16 @@ Publish the configuration file:
 php artisan vendor:publish --tag=fixit-config
 ```
 
-**`config/fixit.php`**
+To check for missing config keys later, run:
 
-```php
-return [
+```bash
+php artisan fixit:sync-config
+```
 
-    /*
-    |--------------------------------------------------------------------------
-    | Encryption Settings
-    |--------------------------------------------------------------------------
-    */
-    'encryption' => [
-        'enabled' => env('FIXIT_ENCRYPTION', false),
-        'key' => env('FIXIT_ENCRYPTION_KEY'),
-    ],
+To automatically append missing keys using short `[]` array syntax:
 
-    /*
-    |--------------------------------------------------------------------------
-    | Email Notification Settings
-    |--------------------------------------------------------------------------
-    */
-    'notifications' => [
-        'driver' => env('FIXIT_NOTIFICATION_DRIVER', 'email'),
-        'send_on_error' => env('FIXIT_SEND_EMAIL', false),
-        'email' => env('FIXIT_NOTIFICATION_EMAIL', 'admin@example.com'),
-        'slack_webhook' => "",
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Error Logging Settings
-    |--------------------------------------------------------------------------
-    */
-    'logging' => [
-        'table' => 'fixit_errors',
-        'status_default' => 'not_fixed',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Future Scalability
-    |--------------------------------------------------------------------------
-    | Use these fields for upcoming features like retention, log channels, etc.
-    */
-    'retention' => [
-        'enabled' => false,
-        'days' => 30,
-    ],
-];
+```bash
+php artisan fixit:sync-config --write
 ```
 
 ---
@@ -110,9 +74,24 @@ return [
 - `response`
 - `ip`
 - `status` (`not_fixed`, `fixed`)
+- `fingerprint`
+- `last_seen_at`
+- `occurrences`
 - `created_at`, `updated_at`
 
 You can change the table name in the config.
+
+---
+
+## ⚒️ Publishing Migrations
+
+To publish and run any new package-provided migrations (e.g. adding new columns):
+
+```bash
+php artisan fixit:sync-migrations
+```
+
+This ensures that columns like `fingerprint`, `last_seen_at`, and `occurrences` are always present.
 
 ---
 
@@ -157,6 +136,19 @@ Mark error as fixed:
 php artisan fixit:report --fix=3
 ```
 
+Sync and patch your config file:
+
+```bash
+php artisan fixit:sync-config          # show missing keys
+php artisan fixit:sync-config --write  # append missing keys to config/fixit.php
+```
+
+Publish and apply package migrations:
+
+```bash
+php artisan fixit:sync-migrations
+```
+
 ---
 
 ## 🔌 Extending Alerts
@@ -195,4 +187,3 @@ app()->bind(FixitAlertInterface::class, SlackAlert::class);
 ## 📝 Changelog
 
 See [Releases](https://github.com/coedevtech/coedevtech-fixit/releases) for full changelog.
-
