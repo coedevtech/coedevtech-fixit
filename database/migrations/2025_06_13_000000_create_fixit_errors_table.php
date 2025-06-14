@@ -22,7 +22,6 @@ return new class extends Migration {
 
             $table->index('created_at');
         });
-
     }
 
     public function down(): void

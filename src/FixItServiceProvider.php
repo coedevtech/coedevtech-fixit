@@ -5,7 +5,7 @@ namespace Fixit;
 use Fixit\Alerts\EmailAlert;
 use Fixit\Alerts\SlackAlert;
 use Fixit\Contracts\FixitAlertInterface;
-use Illuminate\Foundation\Exceptions\Handler;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 
 class FixitServiceProvider extends ServiceProvider
@@ -14,11 +14,6 @@ class FixitServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         
-        $this->publishes([
-            __DIR__.'/../database/migrations/create_fixit_errors_table.php.stub' =>
-                database_path('migrations/'.date('Y_m_d_His', time()).'_create_fixit_errors_table.php'),
-        ], 'migrations');
-
         $this->publishes([
             __DIR__.'/../config/fixit.php' => config_path('fixit.php'),
         ], 'config');
@@ -33,12 +28,13 @@ class FixitServiceProvider extends ServiceProvider
             ]);
         }
 
-        app()->bindMethod(Handler::class . '@report', function ($handler, $app) {
-            return function (\Throwable $e) use ($handler) {
+        $handler = $this->app->make(ExceptionHandler::class);
+
+        if (method_exists($handler, 'reportable')) {
+            $handler->reportable(function (\Throwable $e) {
                 app(\Fixit\Listeners\LogExceptionToDb::class)->handle($e);
-                return $handler->report($e);
-            };
-        });
+            });
+        }
 
         if (config('fixit.encryption.enabled') && empty(config('fixit.encryption.key'))) {
             throw new \RuntimeException("FixIt encryption is enabled but FIXIT_ENCRYPTION_KEY is missing.");

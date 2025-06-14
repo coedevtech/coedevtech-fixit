@@ -31,7 +31,12 @@ class LogExceptionToDb
             ];
 
             if (Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY')) {
-                $data = array_map(fn ($item) => Fixit::encrypt($item), $data);
+                if (isset($data['request'])) {
+                    $data['request'] = Fixit::encrypt($data['request']);
+                }
+                if (isset($data['response'])) {
+                    $data['response'] = Fixit::encrypt($data['response']);
+                }
             }
 
             FixitError::create($data);
@@ -40,7 +45,7 @@ class LogExceptionToDb
                 $this->notifier->send($e->getMessage(), $e);
             }
 
-        } catch (\Throwable $fail) {
+        } catch (Throwable $fail) {
             $this->notifier->send("FixIt failed to log exception: {$fail->getMessage()}", $fail);
         }
     }
