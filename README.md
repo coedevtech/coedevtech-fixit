@@ -1,6 +1,6 @@
 # 🛠️ fixIt – Laravel Error Logging & Notification Package
 
-`fixIt` is a Laravel package that captures and logs all exceptions into a database table — with optional encryption, email alerts, and a powerful CLI interface. Designed to give you full visibility into unhandled errors, without clutter or guesswork.
+`fixIt` is a Laravel package that captures and logs all exceptions into a database table — with optional encryption, email or Slack alerts, and a powerful CLI interface. Designed to give you full visibility into unhandled errors, without clutter or guesswork.
 
 ---
 
@@ -8,12 +8,13 @@
 
 - ✅ Logs all unhandled exceptions to the database
 - 🔐 Optional field-level encryption using Laravel Crypt
-- ⚙️ Configurable notification system (email-based out of the box)
-- 🧪 Built-in Pest tests
+- ⚙️ Configurable notification system (email + Slack supported)
+- 🧠 AI-powered fix suggestions (optional)
+- 🌪️ Built-in Pest tests
 - 📊 Artisan CLI: `fixit:report` to view, filter, and fix errors
 - ✍️ `fixit:sync-config` to merge missing config keys
 - 🛠️ `fixit:sync-migrations` to publish and run package migrations
-- 💡 Extensible alert interface (use your own Slack, Discord, etc.)
+- 💡 Extensible alert interface (plug your own Discord, webhook, etc.)
 
 ---
 
@@ -105,6 +106,25 @@ To receive an email when an error is logged:
 
 ---
 
+## 🧠 AI Suggestions (Optional)
+
+`fixIt` supports AI-powered suggestions for fixing logged errors. This is completely optional.
+
+To enable:
+
+1. Set `FIXIT_AI_ENABLED=true` in your `.env`
+2. Set either:
+   - `FIXIT_AI_API_URL` (for your custom AI proxy)
+   - or `FIXIT_AI_API_KEY` (to use OpenAI directly)
+3. Set `FIXIT_AI_PROVIDER=openai` or `fixit-proxy`
+
+If enabled, suggestions are included in:
+- 📧 Email alerts
+- 💬 Slack alerts
+- Future CLI/reporting support
+
+---
+
 ## 🧪 Running Tests
 
 ```bash
@@ -155,13 +175,13 @@ php artisan fixit:sync-migrations
 
 You can bind your own alert channel by implementing the `Fixit\Contracts\FixitAlertInterface`.
 
-Example for Slack, Discord, or webhook alerts.
+Example for Slack, Discord, or webhook alerts:
 
 ```php
 use Fixit\Contracts\FixitAlertInterface;
 
 class SlackAlert implements FixitAlertInterface {
-    public function send(string $message): void {
+    public function send(string $message, ?Throwable $exception = null, ?string $suggestion = null): void {
         // Your logic here
     }
 }

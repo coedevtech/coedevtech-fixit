@@ -11,10 +11,12 @@ class ErrorOccurredNotification extends Mailable
     use Queueable, SerializesModels;
 
     public string $messageContent;
+    public ?string $suggestion;
 
-    public function __construct($messageContent)
+    public function __construct(string $messageContent, ?string $suggestion = null)
     {
         $this->messageContent = $messageContent;
+        $this->suggestion = $suggestion;
     }
 
     public function build(): self
@@ -23,6 +25,7 @@ class ErrorOccurredNotification extends Mailable
             ->view('fixit::emails.error_occurred')
             ->with([
                 'errorMessage' => $this->messageContent,
+                'suggestion' => $this->suggestion,
             ]);
     }
 }
