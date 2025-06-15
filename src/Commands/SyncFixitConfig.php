@@ -150,6 +150,7 @@ class SyncFixitConfig extends Command
                     'provider' => env('FIXIT_AI_PROVIDER', 'openai'),
                     'api_url' => env('FIXIT_AI_API_URL', null),
                     'api_key' => env('FIXIT_AI_API_KEY', null),
+                    'model' => env('FIXIT_AI_MODEL', null),
                     'timeout' => env('FIXIT_AI_TIMEOUT', 10),
                 ],
             PHP,
