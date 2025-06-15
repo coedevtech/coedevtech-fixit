@@ -121,10 +121,13 @@ class SyncFixitConfig extends Command
                         'ai' => <<<EOT
                 /*
                 |--------------------------------------------------------------------------
-                | AI-Powered Suggestions (Optional)
+                | AI-Powered Suggestions (Multi-provider Support)
                 |--------------------------------------------------------------------------
-                | Users can enable AI-generated suggestions for fixing errors. To use this,
-                | they must provide a proxy endpoint or their own OpenAI credentials.
+                | Available providers:
+                | - openai:      Uses OpenAI API (e.g. gpt-3.5-turbo, gpt-4)
+                | - groq:        Uses Groq’s ultra-fast LLM API (e.g. mixtral-8x7b, llama3-70b)
+                | - together:    Uses Together.ai’s hosted open models
+                | - fixit-proxy: Custom internal proxy endpoint
                 */
             EOT,
             default => ''
