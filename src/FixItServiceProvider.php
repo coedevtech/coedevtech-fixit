@@ -5,63 +5,26 @@ namespace Fixit;
 use Fixit\Alerts\EmailAlert;
 use Fixit\Alerts\SlackAlert;
 use Fixit\Contracts\FixitAlertInterface;
-use Fixit\Enum\ErrorStatus;
-use Fixit\Models\FixitError;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 
 class FixitServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'fixit');
+
         $this->publishes([
-            __DIR__.'/../config/fixit.php' => config_path('fixit.php'),
+            __DIR__ . '/../config/fixit.php' => config_path('fixit.php'),
         ], 'config');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([
-                \Fixit\Commands\InstallFixit::class,
-                \Fixit\Commands\FixitStatus::class,
-                \Fixit\Commands\FixitClear::class,
-                \Fixit\Commands\PurgeOldLogs::class,
-                \Fixit\Commands\FixitReportCommand::class,
-                \Fixit\Commands\SyncFixitConfig::class,
-                \Fixit\Commands\SyncFixitMigrations::class,
-            ]);
+            $this->commands(\Fixit\Bootstrap\RegisterCommands::get());
         }
-
-        $handler = $this->app->make(ExceptionHandler::class);
-
-        if (method_exists($handler, 'reportable')) {
-            $handler->reportable(function (\Throwable $e) {
-                app(\Fixit\Listeners\LogExceptionToDb::class)->handle($e);
-            });
-        }
-
-        if (!app()->runningInConsole() && config('fixit.auto_fix.enabled')) {
-            $key = 'fixit:auto-status-check';
-            $days = config('fixit.auto_fix.inactivity_days_to_fix', 1);
-            $cutoff = now()->subDays($days);
         
-            $query = FixitError::where('status', ErrorStatus::NOT_FIXED->value)
-                ->where('last_seen_at', '<', $cutoff);
-        
-            if ($query->exists()) {
-                $query->update(['status' => ErrorStatus::FIXED->value]);
-            } elseif (!cache()->has($key)) {
-                cache()->put($key, now(), now()->addMinutes(
-                    config('fixit.auto_fix.check_interval_minutes', 5)
-                ));
-            }
-        }
-
-        if (config('fixit.encryption.enabled') && empty(config('fixit.encryption.key'))) {
-            throw new \RuntimeException("FixIt encryption is enabled but FIXIT_ENCRYPTION_KEY is missing.");
-        }
-
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'fixit');
+        \Fixit\Bootstrap\RegisterExceptionHandler::handle($this->app);
+        \Fixit\Bootstrap\RunAutoFixCheck::handle();
+        \Fixit\Bootstrap\ValidateEncryptionConfig::handle();
     }
 
     public function register()

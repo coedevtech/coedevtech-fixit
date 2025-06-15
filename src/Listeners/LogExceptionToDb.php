@@ -67,7 +67,7 @@ class LogExceptionToDb
                 $this->notifier->send($e->getMessage(), $e, $aiSuggestion);
             }
 
-        } catch (\Throwable $fail) {
+        } catch (Throwable $fail) {
             $this->notifier->send("FixIt failed to log exception: {$fail->getMessage()}", $fail);
         }
     }

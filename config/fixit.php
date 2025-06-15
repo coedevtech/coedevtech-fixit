@@ -65,16 +65,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | AI-Powered Suggestions (Optional)
+    | AI-Powered Suggestions (Multi-provider Support)
     |--------------------------------------------------------------------------
-    | Users can enable AI-generated suggestions for fixing errors. To use this,
-    | they must provide a proxy endpoint or their own OpenAI credentials.
+    | Available providers:
+    | - openai:      Uses OpenAI API (e.g. gpt-3.5-turbo, gpt-4)
+    | - groq:        Uses Groq’s ultra-fast LLM API (e.g. mixtral-8x7b, llama3-70b)
+    | - together:    Uses Together.ai’s hosted open models
+    | - fixit-proxy: Custom internal proxy endpoint
     */
     'ai' => [
-        'enabled' => env('FIXIT_AI_ENABLED', false), // default: off
-        'provider' => env('FIXIT_AI_PROVIDER', 'openai'), // or 'fixit-proxy'
-        'api_url' => env('FIXIT_AI_API_URL', null), // for proxy
-        'api_key' => env('FIXIT_AI_API_KEY', null), // for direct OpenAI use
+        'enabled' => env('FIXIT_AI_ENABLED', false),
+        'provider' => env('FIXIT_AI_PROVIDER', 'openai'), // openai | groq | together | mistral | fixit-proxy
+        'api_url' => env('FIXIT_AI_API_URL', null), // Used for fixit-proxy
+        'api_key' => env('FIXIT_AI_API_KEY', null), // Used for OpenAI, Groq, TogetherAI, Mistral
+        'model' => env('FIXIT_AI_MODEL', null), // Optional: Custom model override per provider e.g., gpt-4, mixtral-8x7b-32768, mistral-small
         'timeout' => env('FIXIT_AI_TIMEOUT', 10),
     ],
 ];
