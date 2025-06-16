@@ -21,8 +21,10 @@ jobs:
         with:
           php-version: '8.3'
 
-      - name: Install dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+      - name: Clear vendor and regenerate lock file
+        run: |
+          rm -rf vendor
+          composer update --no-interaction --prefer-dist --no-progress --optimize-autoloader
 
       - name: Run tests
         run: ./vendor/bin/pest
