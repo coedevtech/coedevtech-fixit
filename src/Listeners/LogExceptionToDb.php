@@ -48,12 +48,10 @@ class LogExceptionToDb
 
             // Encrypt request and response data if enabled
             if (Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY')) {
-                if (isset($data['request'])) {
-                    $data['request'] = Fixit::encrypt($data['request']);
-                }
-
-                if (isset($data['response'])) {
-                    $data['response'] = Fixit::encrypt($data['response']);
+                foreach (['request', 'response', 'trace', 'exception'] as $key) {
+                    if (isset($data[$key])) {
+                        $data[$key] = Fixit::encrypt($data[$key]);
+                    }
                 }
             }
 
