@@ -1,20 +1,21 @@
 <?php
 
-use Fixit\Listeners\LogExceptionToDb;
-use Fixit\Models\FixitError;
 use Fixit\Contracts\FixitAlertInterface;
 use Fixit\Facades\Fixit;
+use Fixit\Models\FixitError;
+use Fixit\Listeners\LogExceptionToDb;
+use Fixit\Support\AiFixSuggester;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 
 beforeEach(function () {
-    // Set up encryption config
     Config::set('fixit.encryption.enabled', true);
     Config::set('fixit.notifications.send_on_error', true);
+    Config::set('fixit.ai.enabled', false); // turn off AI logic for this test
+
     $key = base64_encode(random_bytes(32));
     putenv("FIXIT_ENCRYPTION_KEY={$key}");
 
-    // Create a fake fixit_errors table for testing
     Schema::dropIfExists('fixit_errors');
     Schema::create('fixit_errors', function ($table) {
         $table->id();
@@ -32,23 +33,22 @@ beforeEach(function () {
 });
 
 it('logs, encrypts, and correctly decrypts an exception', function () {
-    // Mock FixitAlertInterface to prevent real notifications
+    // Mock FixitAlertInterface
     $mockNotifier = Mockery::mock(FixitAlertInterface::class);
     $mockNotifier->shouldReceive('send')->once();
 
-    // Simulate a throwable
-    $exception = new RuntimeException('Something exploded!');
+    // Mock AiFixSuggester (not used because ai.enabled is false)
+    $mockSuggester = Mockery::mock(AiFixSuggester::class);
 
-    // Log it
-    $listener = new LogExceptionToDb($mockNotifier);
+    // Create and handle a throwable
+    $exception = new RuntimeException('Something exploded!');
+    $listener = new LogExceptionToDb($mockNotifier, $mockSuggester);
     $listener->handle($exception);
 
-    // Fetch latest logged error
     $log = FixitError::latest()->first();
 
     expect($log)->not()->toBeNull();
 
-    // Decrypt values and verify contents
     $decryptedResponse = Fixit::decrypt($log->response);
     $decryptedException = Fixit::decrypt($log->exception);
     $decryptedTrace = Fixit::decrypt($log->trace);
@@ -57,3 +57,4 @@ it('logs, encrypts, and correctly decrypts an exception', function () {
     expect($decryptedException)->toBe(RuntimeException::class);
     expect($decryptedTrace)->toBeString()->not()->toBe('');
 });
+

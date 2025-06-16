@@ -14,7 +14,7 @@ return new class extends Migration {
                 $table->json('request')->nullable();
                 $table->json('response')->nullable();
                 $table->string('ip')->nullable()->index();
-                $table->string('exception')->nullable();
+                $table->longText('exception')->nullable();
                 $table->text('file')->nullable();
                 $table->integer('line')->nullable();
                 $table->longText('trace')->nullable();
