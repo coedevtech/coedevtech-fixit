@@ -40,7 +40,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Fixit\\FixitServiceProvider"
+                "Fixit\\FixItServiceProvider"
             ]
         }
     },

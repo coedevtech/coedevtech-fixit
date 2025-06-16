@@ -7,7 +7,7 @@ use Fixit\Alerts\SlackAlert;
 use Fixit\Contracts\FixitAlertInterface;
 use Illuminate\Support\ServiceProvider;
 
-class FixitServiceProvider extends ServiceProvider
+class FixItServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services after all other services have been registered.
