@@ -1,9 +1,9 @@
-name: Release FixIt
+name: Release Fixit
 
 on:
   push:
     branches:
-      - mains
+      - main
 
 jobs:
   release:
