@@ -29,4 +29,3 @@ class ErrorOccurredNotification extends Mailable
             ]);
     }
 }
-
