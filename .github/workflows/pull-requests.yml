@@ -1,0 +1,12 @@
+name: pull requests
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  pull-requests:
+    uses: coedevtech/.github/.github/workflows/pull-requests.yml@main
