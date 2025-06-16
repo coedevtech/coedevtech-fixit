@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'encryption' => [
-        'enabled' => env('FIXIT_ENCRYPTION', false),
+        'enabled' => env('FIXIT_ENCRYPTION_ENABLED', false),
         'key' => env('FIXIT_ENCRYPTION_KEY'),
     ],
 
@@ -16,11 +16,14 @@ return [
     |--------------------------------------------------------------------------
     | Email Notification Settings
     |--------------------------------------------------------------------------
+    | Available drivers:
+    | - email
+    | - slack
     */
     'notifications' => [
         'driver' => env('FIXIT_NOTIFICATION_DRIVER', 'email'),
         'send_on_error' => env('FIXIT_SEND_EMAIL', false),
-        'email' => env('FIXIT_NOTIFICATION_EMAIL', 'admin@example.com'),
+        'email' => env('FIXIT_NOTIFICATION_EMAIL', 'email@example.com'),
         'slack_webhook' => "",
     ],
 
@@ -58,9 +61,9 @@ return [
     | - `inactivity_days_to_fix`: How many days without reoccurrence before marking as fixed
     */
     'auto_fix' => [
-        'enabled' => true,
-        'check_interval_minutes' => 2,
-        'inactivity_days_to_fix' => 2,
+        'enabled' => env('FIXIT_AUTO_FIX_ENABLED', true),
+        'check_interval_minutes' => env('FIXIT_AUTO_FIX_CHECK_INTERVAL_MINUTES', 2),
+        'inactivity_days_to_fix' => env('FIXIT_AUTO_FIX_INACTIVITY_DAYS_TO_FIX', 30),
     ],
 
     /*
