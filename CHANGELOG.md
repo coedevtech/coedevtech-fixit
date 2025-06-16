@@ -6,6 +6,20 @@
   - Preserves formatting and `env()` usage
   - Uses modern `[]` syntax for arrays
 
+## [1.7.0](https://github.com/coedevtech/coedevtech-fixit/compare/v1.6.0...v1.7.0) (2025-06-16)
+
+
+### Features
+
+* removed space ([dcff146](https://github.com/coedevtech/coedevtech-fixit/commit/dcff14609fd811119b9de5db2744bf619afd5d87))
+
+
+### Bug Fixes
+
+* removed space ([3d9c88a](https://github.com/coedevtech/coedevtech-fixit/commit/3d9c88a0a37ee68803d489ff8886f4461897d210))
+* removed space ([e77af02](https://github.com/coedevtech/coedevtech-fixit/commit/e77af02338119f587454e306b02617753893cf0d))
+* removed space ([b5a4ae7](https://github.com/coedevtech/coedevtech-fixit/commit/b5a4ae7a89b1221fa93c84661fcf51d43a69978c))
+
 ## [1.6.0](https://github.com/coedevtech/coedevtech-fixit/compare/v1.5.1...v1.6.0) (2025-06-16)
 
 
