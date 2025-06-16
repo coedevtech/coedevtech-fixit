@@ -8,13 +8,20 @@ use Throwable;
 
 class AiFixSuggester
 {
+    /**
+     * Suggest a fix for the given exception using an AI provider.
+     */
     public function suggest(Throwable $exception): ?string
     {
+        // Exit early if AI suggestions are disabled in config
         if (!Config::get('fixit.ai.enabled')) {
             return null;
         }
 
+        // Build the prompt from the exception details
         $prompt = $this->buildPrompt($exception);
+
+        // Select the AI provider and call the appropriate handler
         $provider = Config::get('fixit.ai.provider', 'openai');
 
         return match ($provider) {
@@ -26,6 +33,9 @@ class AiFixSuggester
         };
     }
 
+    /**
+     * Call an internal or custom proxy API that returns a fix suggestion.
+     */
     protected function callProxy(string $prompt): ?string
     {
         $url = config('fixit.ai.api_url');
@@ -44,6 +54,9 @@ class AiFixSuggester
         }
     }
 
+    /**
+     * Use OpenAI API to suggest a fix.
+     */
     protected function callOpenAi(string $prompt): ?string
     {
         return $this->callChatCompletion(
@@ -55,6 +68,9 @@ class AiFixSuggester
         );
     }
 
+    /**
+     * Use Groq API to suggest a fix.
+     */
     protected function callGroq(string $prompt): ?string
     {
         return $this->callChatCompletion(
@@ -66,6 +82,9 @@ class AiFixSuggester
         );
     }
 
+    /**
+     * Use Together AI API to suggest a fix.
+     */
     protected function callTogether(string $prompt): ?string
     {
         return $this->callChatCompletion(
@@ -77,6 +96,9 @@ class AiFixSuggester
         );
     }
 
+    /**
+     * Generic method to call any AI chat completion endpoint.
+     */
     protected function callChatCompletion(string $url, string $apiKey, string $model, string $prompt, string $logContext): ?string
     {
         if (!$apiKey) {
@@ -105,6 +127,9 @@ class AiFixSuggester
         }
     }
 
+    /**
+     * Construct a detailed prompt from the exception for AI input.
+     */
     protected function buildPrompt(Throwable $exception): string
     {
         return <<<EOT

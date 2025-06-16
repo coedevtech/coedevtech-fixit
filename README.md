@@ -65,6 +65,30 @@ php artisan fixit:sync-config --write
 
 ---
 
+## 🔐 Manual Encryption / Decryption
+
+`fixIt` provides two static methods via its facade to manually encrypt or decrypt data:
+
+### Encrypt data
+
+```php
+use Fixit\Facades\Fixit;
+
+$encrypted = Fixit::encrypt(['email' => 'user@example.com']);
+```
+
+This encrypts any string or array using AES-256-CBC with a secure IV and stores it base64-encoded.
+
+### Decrypt data
+
+```php
+$decrypted = Fixit::decrypt($encrypted);
+```
+
+This will return the original value (array or string), decrypted securely.
+
+---
+
 ## 🗃️ Database Table
 
 `fixIt` creates a `fixit_errors` table with the following columns:

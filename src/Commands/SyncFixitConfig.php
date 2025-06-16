@@ -6,32 +6,40 @@ use Illuminate\Console\Command;
 
 class SyncFixitConfig extends Command
 {
+    // Command signature and options
     protected $signature = 'fixit:sync-config {--write : Append missing keys directly to config/fixit.php}';
     protected $description = 'Check for missing Fixit config keys. Use --write to append them to config/fixit.php.';
 
+    /**
+     * Run the config sync check.
+     */
     public function handle()
     {
         $configPath = config_path('fixit.php');
         $defaultPath = __DIR__ . '/../../config/fixit.php';
 
+        // Abort if user config doesn't exist
         if (!file_exists($configPath)) {
             $this->warn("config/fixit.php not found. Run:");
             $this->line("php artisan vendor:publish --tag=fixit-config");
             return;
         }
 
+        // Load default config from package
         $defaultArray = include $defaultPath;
         if (!is_array($defaultArray)) {
             $this->error("❌ Failed to load default config from package.");
             return;
         }
 
+        // Load current user config
         $userArray = include $configPath;
         if (!is_array($userArray)) {
             $this->error("❌ Failed to load user config: config/fixit.php must return an array.");
             return;
         }
 
+        // Compare configs to find missing keys
         $missing = $this->findMissingKeys($userArray, $defaultArray);
 
         if (empty($missing)) {
@@ -39,6 +47,7 @@ class SyncFixitConfig extends Command
             return;
         }
 
+        // Handle write or display mode
         if ($this->option('write')) {
             $this->appendToConfig($configPath, $missing);
             $this->info("✅ Missing keys were appended to config/fixit.php.");
@@ -51,6 +60,9 @@ class SyncFixitConfig extends Command
         }
     }
 
+    /**
+     * Return keys that are missing in the user config.
+     */
     protected function findMissingKeys(array $user, array $default): array
     {
         $missing = [];
@@ -62,17 +74,21 @@ class SyncFixitConfig extends Command
         return $missing;
     }
 
+    /**
+     * Append missing keys to the config file with optional comments.
+     */
     protected function appendToConfig(string $filePath, array $missingKeys): void
     {
         $original = file_get_contents($filePath);
 
-        // Add trailing comma if missing before the final `];`
+        // Locate the final closing bracket in the config array
         $closingPos = strrpos($original, '];');
         if ($closingPos === false) {
             $this->error("❌ Could not find closing bracket of the config array.");
             return;
         }
 
+        // Ensure a trailing comma before the closing bracket
         $beforeClosing = rtrim(substr($original, 0, $closingPos));
         if (!preg_match('/,\s*$/', $beforeClosing)) {
             $beforeClosing .= ',';
@@ -80,8 +96,10 @@ class SyncFixitConfig extends Command
 
         $afterClosing = substr($original, $closingPos);
 
+        // Build new config content to insert
         $insertion = "\n\n";
         foreach ($missingKeys as $key => $value) {
+            // Avoid duplicate keys
             if (preg_match('/[\'"]' . preg_quote($key, '/') . '[\'"]\s*=>/', $original)) {
                 $this->warn("❌ '$key' already exists in config. Skipping...");
                 continue;
@@ -90,10 +108,14 @@ class SyncFixitConfig extends Command
             $insertion .= $this->getRawConfigStringForKey($key) . "\n\n";
         }
 
+        // Write updated config back to file
         $updated = $beforeClosing . $insertion . $afterClosing;
         file_put_contents($filePath, $updated);
     }
 
+    /**
+     * Get formatted config block for a missing key, with comments.
+     */
     protected function getRawConfigStringForKey(string $key): string
     {
         $comment = $this->getCommentForKey($key);
@@ -101,6 +123,9 @@ class SyncFixitConfig extends Command
         return $comment . "\n" . $formatted;
     }
 
+    /**
+     * Return explanatory comments for known keys.
+     */
     protected function getCommentForKey(string $key): string
     {
         return match ($key) {
@@ -118,7 +143,7 @@ class SyncFixitConfig extends Command
                 | - `inactivity_days_to_fix`: Days without reoccurrence before marking as fixed
                 */
             EOT,
-                        'ai' => <<<EOT
+            'ai' => <<<EOT
                 /*
                 |--------------------------------------------------------------------------
                 | AI-Powered Suggestions (Multi-provider Support)
@@ -134,6 +159,9 @@ class SyncFixitConfig extends Command
         };
     }
 
+    /**
+     * Return the formatted PHP array string for a missing config key.
+     */
     protected function formatArray(string $key): string
     {
         return match ($key) {
@@ -144,13 +172,13 @@ class SyncFixitConfig extends Command
                     'inactivity_days_to_fix' => 2,
                 ],
             PHP,
-                        'ai' => <<<PHP
+            'ai' => <<<PHP
                 '$key' => [
                     'enabled' => env('FIXIT_AI_ENABLED', false),
                     'provider' => env('FIXIT_AI_PROVIDER', 'openai'),
                     'api_url' => env('FIXIT_AI_API_URL', null),
                     'api_key' => env('FIXIT_AI_API_KEY', null),
-                    'model' => env('FIXIT_AI_MODEL', null),
+                    'model' => env('FIXIT_AI_MODEL', 'gpt-3.5-turbo'),
                     'timeout' => env('FIXIT_AI_TIMEOUT', 10),
                 ],
             PHP,

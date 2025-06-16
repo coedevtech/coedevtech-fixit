@@ -8,28 +8,35 @@ use Fixit\Models\FixitError;
 
 class FixitReportCommand extends Command
 {
+    // Define the available options for the command
     protected $signature = 'fixit:report 
                             {--status=not_fixed : Filter by error status (not_fixed/fixed)} 
                             {--fix= : ID of the error to mark as fixed} 
                             {--all : Show all errors regardless of status}';
 
+    // Description for `php artisan list`
     protected $description = 'View and manage logged FixIt errors';
 
+    /**
+     * Execute the command logic.
+     */
     public function handle()
     {
-        // Option to mark error as fixed
+        // If --fix is provided, mark the corresponding error as fixed
         if ($this->option('fix')) {
             $this->markAsFixed($this->option('fix'));
             return;
         }
 
-        // Fetch records
+        // Begin query for listing errors
         $query = FixitError::query();
 
+        // Filter by status unless --all is specified
         if (!$this->option('all')) {
             $query->where('status', $this->option('status'));
         }
 
+        // Get the latest 20 matching errors
         $errors = $query->latest()->limit(20)->get();
 
         if ($errors->isEmpty()) {
@@ -37,6 +44,7 @@ class FixitReportCommand extends Command
             return;
         }
 
+        // Display the result in a formatted table
         $this->table(
             ['ID', 'URL', 'IP', 'Status', 'Created'],
             $errors->map(fn ($e) => [
@@ -49,6 +57,9 @@ class FixitReportCommand extends Command
         );
     }
 
+    /**
+     * Mark a specific error by ID as fixed.
+     */
     protected function markAsFixed($id)
     {
         $error = FixitError::find($id);
