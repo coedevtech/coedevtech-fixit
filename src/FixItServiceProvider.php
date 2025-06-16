@@ -14,7 +14,7 @@ class FixitServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Load package migrations so users can publish or run them
+        // Load package migrations so users can publish or run them or both
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         // Load views with a namespace so they can be referenced as `fixit::view-name`
