@@ -1,0 +1,13 @@
+name: Bug Report
+about: Report a bug or unexpected behavior in FixIt
+labels: bug
+assignees: ''DescriptionA clear and concise description of the bug.
+Steps to ReproduceGo to '...'
+Run '...'
+See error
+Expected BehaviorWhat you expected to happen.
+Actual BehaviorWhat actually happened.
+EnvironmentLaravel version: [e.g. 10.x]
+PHP version: [e.g. 8.2]
+Package version: [e.g. 1.0.0]
+Additional ContextAdd any other context or screenshots that might help.
