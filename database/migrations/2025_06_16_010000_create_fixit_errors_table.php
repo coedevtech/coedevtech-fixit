@@ -18,6 +18,9 @@ return new class extends Migration {
                 $table->text('file')->nullable();
                 $table->integer('line')->nullable();
                 $table->longText('trace')->nullable();
+                $table->string('fingerprint')->nullable()->index()->after('trace');
+                $table->integer('occurrences')->default(1)->after('last_seen_at');
+                $table->timestamp('last_seen_at')->nullable()->after('fingerprint');
                 $table->enum('status', ['not_fixed', 'fixed'])->default('not_fixed')->index();
                 $table->timestamps();
     
