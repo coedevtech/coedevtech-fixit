@@ -1,4 +1,4 @@
-name: Release FixIt
+name: Release Fixit
 
 on:
   push:
