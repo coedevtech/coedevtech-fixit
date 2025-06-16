@@ -24,8 +24,9 @@ class InstallFixit extends Command
 
             // Set relevant environment variables in .env file
             $this->setEnvValue($envKey, $key);
+            $this->setEnvValue('FIXIT_ENCRYPTION_ENABLED', 'false');
             $this->setEnvValue('FIXIT_SEND_EMAIL', 'false');
-            $this->setEnvValue('FIXIT_NOTIFICATION_EMAIL', 'admin@example.com');
+            $this->setEnvValue('FIXIT_NOTIFICATION_EMAIL', 'email@example.com');
             $this->setEnvValue('FIXIT_AI_ENABLED', 'false');
             $this->setEnvValue('FIXIT_AI_PROVIDER', 'openai');
             $this->setEnvValue('FIXIT_AI_MODEL', 'gpt-3.5-turbo');
