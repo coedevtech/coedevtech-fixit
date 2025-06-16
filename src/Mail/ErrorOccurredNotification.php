@@ -21,7 +21,7 @@ class ErrorOccurredNotification extends Mailable
 
     public function build(): self
     {
-        return $this->subject('🚨 FixIt Error Logged')
+        return $this->subject('🚨 Fixit Error Logged')
             ->view('fixit::emails.error_occurred')
             ->with([
                 'errorMessage' => $this->messageContent,

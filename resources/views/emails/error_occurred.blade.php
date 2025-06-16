@@ -46,6 +46,10 @@
             font-weight: 600;
         }
 
+        td {
+            color: #fff;
+        }
+
         .section {
             margin-top: 2rem;
         }
