@@ -29,19 +29,19 @@
     },
     "autoload": {
         "psr-4": {
-        "Fixit\\": "src/"
+            "Fixit\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-        "Fixit\\Tests\\": "tests/"
+            "Fixit\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
-        "providers": [
-            "Fixit\\FixitServiceProvider"
-        ]
+            "providers": [
+                "Fixit\\FixitServiceProvider"
+            ]
         }
     },
     "minimum-stability": "stable",
