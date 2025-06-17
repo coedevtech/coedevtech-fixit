@@ -128,6 +128,14 @@ To receive an email when an error is logged:
 2. Set the `notifications.email` in the config file
 3. Ensure Laravel mail is properly configured
 
+> 🧠 If you're using `QUEUE_CONNECTION=database` or `QUEUE_CONNECTION=redis`, you must run:
+>
+> ```bash
+> php artisan queue:work
+> ```
+>
+> Otherwise, queued emails will not be sent and may block request execution depending on your queue setup.
+
 ---
 
 ## 🧠 AI Suggestions (Optional)
