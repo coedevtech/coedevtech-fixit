@@ -37,6 +37,17 @@ class InstallFixit extends Command
             $this->info('❌ Encryption disabled.');
         }
 
+        // Publish the FixIt config file to the host app
+        if (!file_exists(config_path('fixit.php'))) {
+            $this->call('vendor:publish', [
+                '--provider' => "Fixit\\FixItServiceProvider",
+                '--tag' => 'config'
+            ]);
+            $this->info('✅ Config file published to config/fixit.php');
+        } else {
+            $this->info('ℹ️ Config already exists. Skipped publishing.');
+        }
+
         // Ask user if they want to run migrations immediately
         if ($this->confirm('Do you want to run the FixIt DB migration now?', true)) {
             $this->call('migrate');
@@ -44,12 +55,6 @@ class InstallFixit extends Command
         } else {
             $this->info('📦 Migration skipped. You can run it manually using: php artisan migrate');
         }
-
-        // Publish the FixIt config file to the host app
-        $this->call('vendor:publish', [
-            '--provider' => "Fixit\\FixitServiceProvider",
-            '--tag' => 'config'
-        ]);
 
         $this->info('✅ FixIt installation completed.');
     }
