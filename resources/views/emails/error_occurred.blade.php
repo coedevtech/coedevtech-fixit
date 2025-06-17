@@ -6,8 +6,8 @@
     <style>
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #e5e7eb;
+            background-color: #2c2c2c;
+            color: #fff;
             padding: 0;
             margin: 0;
         }
@@ -29,7 +29,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem;
-            background-color: #2c2c2c;
+            background-color: #fff;
         }
 
         .section {
@@ -46,7 +46,7 @@
 
         .highlight {
             background-color: #111827;
-            color: #fca5a5;
+            color: #fff;
             padding: 1rem;
             border-radius: 6px;
             font-size: 0.95rem;
