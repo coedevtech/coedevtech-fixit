@@ -6,20 +6,20 @@
     <style>
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #2c2c2c;
-            color: #fff;
+            background-color: #f9fafb;
+            color: #111827;
             padding: 0;
             margin: 0;
         }
 
         .header {
-            background-color: #000000;
+            background-color: #1f2937;
             padding: 1.5rem 2rem;
             text-align: center;
         }
 
         .header h1 {
-            color: #38bdf8;
+            color: #3b82f6;
             font-size: 1.75rem;
             margin: 0;
             font-weight: bold;
@@ -27,9 +27,11 @@
 
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 2rem auto;
             padding: 2rem;
-            background-color: #fff;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .section {
@@ -37,19 +39,19 @@
         }
 
         .section h2 {
-            color: #f9fafb;
+            color: #1f2937;
             font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid #3f3f3f;
-            padding-bottom: 0.25rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 0.75rem;
         }
 
         .highlight {
-            background-color: #111827;
-            color: #fff;
+            background-color: #f3f4f6;
+            color: #1f2937;
             padding: 1rem;
             border-radius: 6px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
@@ -64,29 +66,29 @@
         .details-table td {
             text-align: left;
             padding: 0.75rem;
-            border-bottom: 1px solid #3f3f3f;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .details-table th {
-            background-color: #111827;
-            color: #93c5fd;
+            background-color: #f9fafb;
+            color: #1f2937;
             font-weight: 600;
             width: 30%;
         }
 
         .details-table td {
-            color: #d1d5db;
+            color: #4b5563;
         }
 
         .code-block {
-            background-color: #111827;
+            background-color: #f3f4f6;
             padding: 1rem;
             border-radius: 6px;
             font-family: monospace;
             font-size: 0.95rem;
             white-space: pre-wrap;
             overflow-x: auto;
-            color: #d1d5db;
+            color: #1f2937;
         }
     </style>
 </head>
