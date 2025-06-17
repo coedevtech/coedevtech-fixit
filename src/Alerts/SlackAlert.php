@@ -11,11 +11,21 @@ class SlackAlert implements FixitAlertInterface
     /**
      * Send an exception alert to a configured Slack webhook.
      *
-     * @param string         $message     Summary of the exception
-     * @param Throwable|null $exception   (Optional) Full exception object (not used here)
-     * @param string|null    $suggestion  (Optional) AI-generated suggestion
+     * @param string         $message     Summary of the error
+     * @param Throwable|null $exception   Optional exception object (not used here)
+     * @param string|null    $suggestion  Optional AI-generated suggestion
+     * @param int|null       $occurrences Optional
+     * @param string|null    $date        Optional
+     * @param string|null    $environment Optional
      */
-    public function send(string $message, ?Throwable $exception = null, ?string $suggestion = null): void
+    public function send(
+        string $message,
+        ?Throwable $exception = null,
+        ?string $suggestion = null,
+        ?int $occurrences = null,
+        ?string $date = null,
+        ?string $environment = null
+    ): void
     {
         // Retrieve Slack webhook URL from config
         $webhook = config('fixit.notifications.slack_webhook');

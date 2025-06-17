@@ -28,6 +28,9 @@ beforeEach(function () {
         $table->text('file')->nullable();
         $table->integer('line')->nullable();
         $table->longText('trace')->nullable();
+        $table->string('environment')->nullable();
+        $table->string('fingerprint')->nullable();
+        $table->dateTime('last_seen_at')->nullable();
         $table->timestamps();
     });
 });

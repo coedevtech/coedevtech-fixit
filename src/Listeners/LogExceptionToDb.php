@@ -28,63 +28,94 @@ class LogExceptionToDb
     public function handle(Throwable $e): void
     {
         try {
-            // Generate a unique fingerprint for the error based on message, file, and line
-            $fingerprint = md5($e->getMessage() . $e->getFile() . $e->getLine());
+            $fingerprint = $this->generateFingerprint($e);
+            $data = $this->prepareErrorData($e, $fingerprint);
 
-            // Prepare data for storage
-            $data = [
-                'url'          => Request::fullUrl(),
-                'request'      => Request::all(),
-                'response'     => ['message' => $e->getMessage()],
-                'ip'           => Request::ip(),
-                'exception'    => get_class($e),
-                'file'         => $e->getFile(),
-                'line'         => $e->getLine(),
-                'trace'        => $e->getTraceAsString(),
-                'status'       => 'not_fixed',
-                'fingerprint'  => $fingerprint,
-                'last_seen_at' => now(),
-            ];
-
-            // Encrypt request and response data if enabled
-            if (Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY')) {
-                foreach (['request', 'response', 'trace', 'exception'] as $key) {
-                    if (isset($data[$key])) {
-                        $data[$key] = Fixit::encrypt($data[$key]);
-                    }
-                }
+            if ($this->shouldEncrypt()) {
+                $this->encryptSensitiveFields($data);
             }
 
-            // Check if this exception already exists in the database
-            $existing = FixitError::where('fingerprint', $fingerprint)->first();
+            $error = $this->storeOrUpdateError($data, $fingerprint);
 
-            if ($existing) {
-                // If already logged, update last seen time and increment occurrence count
-                $existing->update([
-                    'last_seen_at' => now(),
-                    'occurrences'  => $existing->occurrences + 1,
-                    'status'       => 'not_fixed',
-                ]);
-            } else {
-                // Otherwise, create a new error entry
-                FixitError::create($data);
-            }
+            $aiSuggestion = $this->getAiSuggestionIfEnabled($e);
 
-            // Optionally get an AI-generated suggestion for the error
-            $aiSuggestion = null;
-            if (Config::get('fixit.ai.enabled')) {
-                $aiSuggestion = $this->suggester->suggest($e);
-            }
-
-            // Send notification if enabled
             if (Config::get('fixit.notifications.send_on_error')) {
-                $this->notifier->send($e->getMessage(), $e, $aiSuggestion);
+                $this->sendNotification($e, $aiSuggestion, $error);
             }
 
         } catch (Throwable $fail) {
-            // If something fails during logging, send a fallback alert to the author
             Mail::to('onyedikachukwu62@gmail.com')
                 ->send(new \Fixit\Mail\ErrorOccurredNotification($fail->getMessage()));
         }
+    }
+
+    private function generateFingerprint(Throwable $e): string
+    {
+        return md5($e->getMessage() . $e->getFile() . $e->getLine());
+    }
+
+    private function prepareErrorData(Throwable $e, string $fingerprint): array
+    {
+        return [
+            'url'          => Request::fullUrl(),
+            'request'      => Request::all(),
+            'response'     => ['message' => $e->getMessage()],
+            'ip'           => Request::ip(),
+            'exception'    => get_class($e),
+            'file'         => $e->getFile(),
+            'line'         => $e->getLine(),
+            'trace'        => $e->getTraceAsString(),
+            'status'       => 'not_fixed',
+            'fingerprint'  => $fingerprint,
+            'last_seen_at' => now(),
+            'environment'  => app()->environment(),
+        ];
+    }
+
+    private function shouldEncrypt(): bool
+    {
+        return Config::get('fixit.encryption.enabled') && env('FIXIT_ENCRYPTION_KEY');
+    }
+
+    private function encryptSensitiveFields(array &$data): void
+    {
+        foreach (['request', 'response', 'trace', 'exception'] as $key) {
+            if (isset($data[$key])) {
+                $data[$key] = Fixit::encrypt($data[$key]);
+            }
+        }
+    }
+
+    private function storeOrUpdateError(array $data, string $fingerprint): FixitError
+    {
+        $existing = FixitError::where('fingerprint', $fingerprint)->first();
+
+        if ($existing) {
+            $existing->update([
+                'last_seen_at' => now(),
+                'occurrences'  => $existing->occurrences + 1,
+                'status'       => 'not_fixed',
+            ]);
+            return $existing;
+        }
+
+        return FixitError::create($data);
+    }
+
+    private function getAiSuggestionIfEnabled(Throwable $e): ?string
+    {
+        return Config::get('fixit.ai.enabled') ? $this->suggester->suggest($e) : null;
+    }
+
+    private function sendNotification(Throwable $e, ?string $aiSuggestion, FixitError $error): void
+    {
+        $this->notifier->send(
+            $e->getMessage(),
+            $e,
+            $aiSuggestion,
+            $error->occurrences,
+            $error->last_seen_at,
+            $error->environment
+        );
     }
 }
