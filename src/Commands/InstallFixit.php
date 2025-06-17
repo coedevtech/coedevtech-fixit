@@ -3,6 +3,7 @@
 namespace Fixit\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 
 class InstallFixit extends Command
 {
@@ -54,6 +55,20 @@ class InstallFixit extends Command
             $this->info('📦 Migration completed.');
         } else {
             $this->info('📦 Migration skipped. You can run it manually using: php artisan migrate');
+        }
+
+        // ✅ NEW: Warn if QUEUE_CONNECTION=database but jobs table doesn't exist
+        $queueDriver = config('queue.default');
+
+        if ($queueDriver === 'database') {
+            if (!Schema::hasTable('jobs')) {
+                $this->warn('⚠️ Your QUEUE_CONNECTION is set to "database", but the "jobs" table does not exist.');
+                $this->line('To fix this, run:');
+                $this->line('  php artisan queue:table');
+                $this->line('  php artisan migrate');
+            } else {
+                $this->info('✅ "jobs" table detected for database queue.');
+            }
         }
 
         $this->info('✅ FixIt installation completed.');

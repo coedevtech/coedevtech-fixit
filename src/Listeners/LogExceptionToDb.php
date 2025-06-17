@@ -44,8 +44,11 @@ class LogExceptionToDb
             }
 
         } catch (Throwable $fail) {
-            Mail::to('onyedikachukwu62@gmail.com')
-                ->send(new \Fixit\Mail\ErrorOccurredNotification($fail->getMessage()));
+            logger()->warning('Fixit: email notification failed', [
+                'message' => $fail->getMessage(),
+            ]);
+
+            return;
         }
     }
 
@@ -111,7 +114,7 @@ class LogExceptionToDb
     {
         $this->notifier->send(
             $e->getMessage(),
-            $e,
+            $e->getTraceAsString(),
             $aiSuggestion,
             $error->occurrences,
             $error->last_seen_at,

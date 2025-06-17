@@ -4,7 +4,6 @@ namespace Fixit\Alerts;
 
 use Fixit\Contracts\FixitAlertInterface;
 use Illuminate\Support\Facades\Http;
-use Throwable;
 
 class SlackAlert implements FixitAlertInterface
 {
@@ -12,7 +11,7 @@ class SlackAlert implements FixitAlertInterface
      * Send an exception alert to a configured Slack webhook.
      *
      * @param string         $message     Summary of the error
-     * @param Throwable|null $exception   Optional exception object (not used here)
+     * @param string|null    $exception   Optional exception object (not used here)
      * @param string|null    $suggestion  Optional AI-generated suggestion
      * @param int|null       $occurrences Optional
      * @param string|null    $date        Optional
@@ -20,7 +19,7 @@ class SlackAlert implements FixitAlertInterface
      */
     public function send(
         string $message,
-        ?Throwable $exception = null,
+        ?string $exception = null,
         ?string $suggestion = null,
         ?int $occurrences = null,
         ?string $date = null,
