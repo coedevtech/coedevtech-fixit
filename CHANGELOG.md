@@ -6,6 +6,18 @@
   - Preserves formatting and `env()` usage
   - Uses modern `[]` syntax for arrays
 
+## [1.8.0](https://github.com/coedevtech/coedevtech-fixit/compare/v1.7.0...v1.8.0) (2025-06-17)
+
+
+### Features
+
+* redesign error email template with Fixit branding, and markdown rendering ([6196ab4](https://github.com/coedevtech/coedevtech-fixit/commit/6196ab4d577535d3ac57009e4b593b28ac2b78b4))
+
+
+### Bug Fixes
+
+* fixed tests ([e40f87f](https://github.com/coedevtech/coedevtech-fixit/commit/e40f87f776ac48433bea1f67dd32abba0d06e40c))
+
 ## [1.7.0](https://github.com/coedevtech/coedevtech-fixit/compare/v1.6.0...v1.7.0) (2025-06-16)
 
 
