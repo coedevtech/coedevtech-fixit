@@ -31,12 +31,12 @@ class EmailAlert implements FixitAlertInterface
         // Send the error notification email to the configured recipient
         Mail::to(config('fixit.notifications.email'))
             ->send(new ErrorOccurredNotification(
-                $message,
-                $exception,
-                $suggestion,
-                $occurrences,
-                $date,
-                $environment
+                messageContent: $message,
+                exception: $exception,
+                suggestion: $suggestion,
+                occurrences: $occurrences,
+                date: $date ?? now()->toDateTimeString(),
+                environment: $environment ?? app()->environment()
             ));
     }
 }

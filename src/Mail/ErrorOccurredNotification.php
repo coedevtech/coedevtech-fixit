@@ -26,8 +26,8 @@ class ErrorOccurredNotification extends Mailable
         string $environment = ''
     ) {
         $this->messageContent = $messageContent;
-        $this->suggestion = $suggestion;
         $this->exception = $exception;
+        $this->suggestion = $suggestion;
         $this->occurrences = $occurrences;
         $this->date = $date;
         $this->environment = $environment;
@@ -39,8 +39,8 @@ class ErrorOccurredNotification extends Mailable
             ->view('fixit::emails.error_occurred')
             ->with([
                 'errorMessage' => $this->messageContent,
-                'suggestion' => $this->suggestion,
                 'exception' => $this->exception,
+                'suggestion' => $this->suggestion,
                 'occurrences' => $this->occurrences,
                 'date' => $this->date,
                 'environment' => $this->environment,
