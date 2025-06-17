@@ -6,6 +6,16 @@
   - Preserves formatting and `env()` usage
   - Uses modern `[]` syntax for arrays
 
+## [1.8.5](https://github.com/coedevtech/coedevtech-fixit/compare/v1.8.4...v1.8.5) (2025-06-17)
+
+
+### Bug Fixes
+
+* updated template ([a731d24](https://github.com/coedevtech/coedevtech-fixit/commit/a731d240c6e77bbe76a23c707ca36c1fb3d7a8c9))
+* updated template ([e80234d](https://github.com/coedevtech/coedevtech-fixit/commit/e80234d8ca56dce4fc6fada7c5a7659f0c0b0501))
+* updated template ([e0905b9](https://github.com/coedevtech/coedevtech-fixit/commit/e0905b96927c69c2ef2d4dabb117d50ac6cf0e7e))
+* updated template ([06a90c4](https://github.com/coedevtech/coedevtech-fixit/commit/06a90c40147145cdeb6633faa05f4b4f64518891))
+
 ## [1.8.4](https://github.com/coedevtech/coedevtech-fixit/compare/v1.8.3...v1.8.4) (2025-06-17)
 
 
