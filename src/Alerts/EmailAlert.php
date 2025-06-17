@@ -15,11 +15,28 @@ class EmailAlert implements FixitAlertInterface
      * @param string         $message     Summary of the error
      * @param Throwable|null $exception   Optional exception object (not used here)
      * @param string|null    $suggestion  Optional AI-generated suggestion
+     * @param int|null       $occurrences Optional
+     * @param string|null    $date        Optional
+     * @param string|null    $environment Optional
      */
-    public function send(string $message, ?Throwable $exception = null, ?string $suggestion = null): void
+    public function send(
+        string $message,
+        ?Throwable $exception = null,
+        ?string $suggestion = null,
+        ?int $occurrences = null,
+        ?string $date = null,
+        ?string $environment = null
+    ): void
     {
         // Send the error notification email to the configured recipient
         Mail::to(config('fixit.notifications.email'))
-            ->send(new ErrorOccurredNotification($message, $suggestion));
+            ->send(new ErrorOccurredNotification(
+                $message,
+                $exception,
+                $suggestion,
+                $occurrences,
+                $date,
+                $environment
+            ));
     }
 }

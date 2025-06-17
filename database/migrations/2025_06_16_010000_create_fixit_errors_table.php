@@ -21,6 +21,7 @@ return new class extends Migration {
                 $table->string('fingerprint')->nullable()->index();
                 $table->integer('occurrences')->default(1);
                 $table->timestamp('last_seen_at')->nullable();
+                $table->string('environment')->nullable();
                 $table->enum('status', ['not_fixed', 'fixed'])->default('not_fixed')->index();
                 $table->timestamps();
     
