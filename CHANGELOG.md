@@ -6,6 +6,14 @@
   - Preserves formatting and `env()` usage
   - Uses modern `[]` syntax for arrays
 
+## [1.8.1](https://github.com/coedevtech/coedevtech-fixit/compare/v1.8.0...v1.8.1) (2025-06-17)
+
+
+### Bug Fixes
+
+* updated install file ([12b97a1](https://github.com/coedevtech/coedevtech-fixit/commit/12b97a1b9426edff7bcaaae8511444e070ea8c89))
+* updated install file ([2e2b799](https://github.com/coedevtech/coedevtech-fixit/commit/2e2b799151f3ec09912ec14b1d8a2d20fb4bc71b))
+
 ## [1.8.0](https://github.com/coedevtech/coedevtech-fixit/compare/v1.7.0...v1.8.0) (2025-06-17)
 
 
