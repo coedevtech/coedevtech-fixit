@@ -112,9 +112,15 @@ class LogExceptionToDb
 
     private function sendNotification(Throwable $e, ?string $aiSuggestion, FixitError $error): void
     {
+        // Secure short trace: Controller@method without file path
+        $traceLines = explode("\n", $e->getTraceAsString());
+
+        preg_match('/(App\\\\Http\\\\Controllers\\\\[^\s]+->\w+)/', $traceLines[0] ?? '', $matches);
+        $shortTrace = $matches[1] ?? 'Trace origin not identifiable';
+
         $this->notifier->send(
             $e->getMessage(),
-            $e->getTraceAsString(),
+            $shortTrace,
             $aiSuggestion,
             $error->occurrences,
             $error->last_seen_at,
