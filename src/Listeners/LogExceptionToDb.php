@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Request;
 use Fixit\Contracts\FixitAlertInterface;
 use Fixit\Support\AiFixSuggester;
-use Illuminate\Support\Facades\Mail;
 
 class LogExceptionToDb
 {

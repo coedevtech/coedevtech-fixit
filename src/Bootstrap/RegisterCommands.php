@@ -18,6 +18,7 @@ class RegisterCommands
             \Fixit\Commands\FixitReportCommand::class,  // Generates a report of recent errors
             \Fixit\Commands\SyncFixitConfig::class,     // Re-syncs config with default values
             \Fixit\Commands\SyncFixitMigrations::class, // Re-syncs migrations with the application
+            \Fixit\Commands\VerifyFixitConfig::class,   // Verify the Fixit config file
         ];
     }
 }

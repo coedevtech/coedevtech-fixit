@@ -4,6 +4,7 @@ namespace Fixit\Alerts;
 
 use Fixit\Contracts\FixitAlertInterface;
 use Fixit\Mail\ErrorOccurredNotification;
+use Fixit\Support\NotificationEmailResolver;
 use Illuminate\Support\Facades\Mail;
 
 class EmailAlert implements FixitAlertInterface
@@ -12,11 +13,11 @@ class EmailAlert implements FixitAlertInterface
      * Send an error alert via email.
      *
      * @param string         $message     Summary of the error
-     * @param string|null    $exception   Optional exception object (not used here)
-     * @param string|null    $suggestion  Optional AI-generated suggestion
-     * @param int|null       $occurrences Optional
-     * @param string|null    $date        Optional
-     * @param string|null    $environment Optional
+     * @param string|null    $exception   Short trace or file/line info
+     * @param string|null    $suggestion  AI-generated suggestion (optional)
+     * @param int|null       $occurrences Number of times this error occurred
+     * @param string|null    $date        Last seen timestamp
+     * @param string|null    $environment Application environment (e.g., production)
      */
     public function send(
         string $message,
@@ -25,9 +26,7 @@ class EmailAlert implements FixitAlertInterface
         ?int $occurrences = null,
         ?string $date = null,
         ?string $environment = null
-    ): void
-    {
-        // Send the error notification email to the configured recipient
+    ): void {
         $mailable = new ErrorOccurredNotification(
             messageContent: $message,
             exception: $exception,
@@ -37,16 +36,26 @@ class EmailAlert implements FixitAlertInterface
             environment: $environment ?? app()->environment()
         );
 
-        $recipient = config('fixit.notifications.email');
+        $recipients = NotificationEmailResolver::resolve();
 
-        try {
-            if ($this->shouldQueue()) {
-                Mail::to($recipient)->queue($mailable);
-            } else {
-                Mail::to($recipient)->send($mailable);
+        if (empty($recipients)) {
+            logger()->warning('Fixit: No valid email recipients found for error alert.');
+            return;
+        }
+
+        foreach ($recipients as $recipient) {
+            try {
+                if ($this->shouldQueue()) {
+                    Mail::to($recipient)->queue($mailable);
+                } else {
+                    Mail::to($recipient)->send($mailable);
+                }
+            } catch (\Throwable $e) {
+                logger()->warning('Fixit email alert failed', [
+                    'email' => $recipient,
+                    'reason' => $e->getMessage(),
+                ]);
             }
-        } catch (\Throwable $e) {
-            logger()->warning('Fixit email alert failed', ['reason' => $e->getMessage()]);
         }
     }
 

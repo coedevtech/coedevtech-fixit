@@ -24,7 +24,8 @@ return [
         'driver' => env('FIXIT_NOTIFICATION_DRIVER', 'email'),
         'send_on_error' => env('FIXIT_SEND_EMAIL', false),
         'email' => env('FIXIT_NOTIFICATION_EMAIL', 'email@example.com'),
-        'slack_webhook' => "",
+        'allow_multiple' => env('FIXIT_ALLOW_MULTIPLE_EMAILS', false),
+        'slack_webhook' => '',
     ],
 
     /*

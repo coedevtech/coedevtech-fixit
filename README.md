@@ -8,9 +8,10 @@
 
 - ✅ Logs all unhandled exceptions to the database
 - 🔐 Optional field-level encryption using Laravel Crypt
+- 📧 **Multi-recipient email alerts support**
 - ⚙️ Configurable notification system (email + Slack supported)
 - 🧠 AI-powered fix suggestions (optional)
-- 🌪️ Built-in Pest tests
+- 🧪 `fixit:verify-config` to validate and auto-patch `.env`
 - 📊 Artisan CLI: `fixit:report` to view, filter, and fix errors
 - ✍️ `fixit:sync-config` to merge missing config keys
 - 🛠️ `fixit:sync-migrations` to publish and run package migrations
@@ -22,8 +23,8 @@
 
 | Dependency | Version |
 |------------|---------|
-| **PHP**    | `^8.1` or `^8.2` or `^8.3` |
-| **Laravel**| `^10.x` or `^11.x` or `^12.x` |
+| **PHP**    | `^8.1`, `^8.2`, or `^8.3` |
+| **Laravel**| `^10.x`, `^11.x`, or `^12.x` |
 
 ---
 
@@ -33,209 +34,137 @@
 composer require coedevtech/fixit
 ```
 
-Then publish and install:
+Then run the installer:
 
 ```bash
 php artisan fixit:install
 ```
 
-During installation, you’ll be prompted to enable encryption (optional). If enabled, a `FIXIT_ENCRYPTION_KEY` will be added to your `.env` file.
-
 ---
 
 ## ⚙️ Configuration
 
-Publish the configuration file:
+To publish the config file:
 
 ```bash
 php artisan vendor:publish --tag=fixit-config
 ```
 
-To check for missing config keys later, run:
+To verify and auto-patch missing `.env` keys:
 
 ```bash
-php artisan fixit:sync-config
+php artisan fixit:verify-config
+php artisan fixit:verify-config --fix
 ```
 
-To automatically append missing keys using short `[]` array syntax:
+For JSON output (CI pipelines):
 
 ```bash
-php artisan fixit:sync-config --write
+php artisan fixit:verify-config --json
 ```
 
 ---
 
 ## 🔐 Manual Encryption / Decryption
 
-`fixIt` provides two static methods via its facade to manually encrypt or decrypt data:
-
-### Encrypt data
-
 ```php
 use Fixit\Facades\Fixit;
 
 $encrypted = Fixit::encrypt(['email' => 'user@example.com']);
-```
-
-This encrypts any string or array using AES-256-CBC with a secure IV and stores it base64-encoded.
-
-### Decrypt data
-
-```php
 $decrypted = Fixit::decrypt($encrypted);
 ```
 
-This will return the original value (array or string), decrypted securely.
+---
+
+## 📧 Multi-Email Notifications
+
+Configure in `.env`:
+
+```env
+FIXIT_SEND_EMAIL=true
+FIXIT_NOTIFICATION_EMAIL=admin@example.com,dev@example.com
+FIXIT_ALLOW_MULTIPLE_EMAILS=true
+```
+
+> Emails will be sent to all valid addresses if `FIXIT_ALLOW_MULTIPLE_EMAILS` is true.
+
+---
+
+## 🤖 AI Suggestions (Optional)
+
+Enable AI-powered suggestions:
+
+```env
+FIXIT_AI_ENABLED=true
+FIXIT_AI_API_KEY=sk-xxx    # or use FIXIT_AI_API_URL
+FIXIT_AI_PROVIDER=openai   # or fixit-proxy, groq, etc.
+FIXIT_AI_MODEL=gpt-3.5-turbo # or gpt-4 based on your provider
+FIXIT_AI_API_URL=https://www.proxy-url.com # Used for fixit-proxy
+```
 
 ---
 
 ## 🗃️ Database Table
 
-`fixIt` creates a `fixit_errors` table with the following columns:
+Includes fields like:
 
 - `id`
 - `url`
 - `request`
 - `response`
 - `ip`
-- `status` (`not_fixed`, `fixed`)
+- `exception`
+- `file`
+- `line`
+- `trace`
 - `fingerprint`
-- `last_seen_at`
 - `occurrences`
+- `last_seen_at`
+- `environment`
+- `status` (`not_fixed`, `fixed`)
 - `created_at`, `updated_at`
 
-You can change the table name in the config.
+Table name is configurable.
 
 ---
 
-## ⚒️ Publishing Migrations
-
-To publish and run any new package-provided migrations (e.g. adding new columns):
+## 📊 CLI Usage
 
 ```bash
-php artisan fixit:sync-migrations
-```
-
-This ensures that columns like `fingerprint`, `last_seen_at`, and `occurrences` are always present.
-
----
-
-## 📧 Email Notifications
-
-To receive an email when an error is logged:
-
-1. Set `send_on_error` to `true`
-2. Set the `notifications.email` in the config file
-3. Ensure Laravel mail is properly configured
-
-> 🧠 If you're using `QUEUE_CONNECTION=database` or `QUEUE_CONNECTION=redis`, you must run:
->
-> ```bash
-> php artisan queue:work
-> ```
->
-> Otherwise, queued emails will not be sent and may block request execution depending on your queue setup.
-
----
-
-## 🧠 AI Suggestions (Optional)
-
-`fixIt` supports AI-powered suggestions for fixing logged errors. This is completely optional.
-
-To enable:
-
-1. Set `FIXIT_AI_ENABLED=true` in your `.env`
-2. Set either:
-   - `FIXIT_AI_API_URL` (for your custom AI proxy)
-   - or `FIXIT_AI_API_KEY` (to use OpenAI directly)
-3. Set `FIXIT_AI_PROVIDER=openai` or `fixit-proxy`
-
-If enabled, suggestions are included in:
-- 📧 Email alerts
-- 💬 Slack alerts
-- Future CLI/reporting support
-
----
-
-## 🧪 Running Tests
-
-```bash
-./vendor/bin/pest
-```
-
-All tests are written using Pest and cover encryption, logging, config, and notifications.
-
----
-
-## 🖥️ CLI Usage
-
-View error logs:
-
-```bash
-php artisan fixit:report
-```
-
-Filter errors:
-
-```bash
-php artisan fixit:report --status=fixed
+php artisan fixit:report             # View logs
 php artisan fixit:report --all
-```
-
-Mark error as fixed:
-
-```bash
 php artisan fixit:report --fix=3
-```
-
-Sync and patch your config file:
-
-```bash
-php artisan fixit:sync-config          # show missing keys
-php artisan fixit:sync-config --write  # append missing keys to config/fixit.php
-```
-
-Publish and apply package migrations:
-
-```bash
+php artisan fixit:verify-config --fix
+php artisan fixit:sync-config --write
 php artisan fixit:sync-migrations
+php artisan fixit:purge-old
+php artisan fixit:status
+php artisan fixit:clear --only=fixed
+php artisan fixit:clear --before=1684780800
 ```
 
 ---
 
-## 🔌 Extending Alerts
+## 🔌 Extend Alert Channels
 
-You can bind your own alert channel by implementing the `Fixit\Contracts\FixitAlertInterface`.
-
-Example for Slack, Discord, or webhook alerts:
+Implement:
 
 ```php
-use Fixit\Contracts\FixitAlertInterface;
-
-class SlackAlert implements FixitAlertInterface {
-    public function send(string $message, ?Throwable $exception = null, ?string $suggestion = null): void {
-        // Your logic here
-    }
-}
+Fixit\Contracts\FixitAlertInterface
 ```
 
-Then bind it in a service provider:
-
-```php
-app()->bind(FixitAlertInterface::class, SlackAlert::class);
-```
+Bind your own alert system (Discord, webhook, etc.) via service provider.
 
 ---
 
 ## 🛡️ Security & Best Practices
 
-- Uses Laravel’s encryption system
-- Avoids session or user tracking by default
-- Decoupled and test-driven design
-- Ready to extend with custom drivers or UI layers
+- Uses Laravel Crypt under the hood
+- No user or session info tracked by default
+- Designed for extensibility, dev-friendliness, and CI integration
 
 ---
 
 ## 📝 Changelog
 
-See [Releases](https://github.com/coedevtech/coedevtech-fixit/releases) for full changelog.
+See [Releases](https://github.com/coedevtech/coedevtech-fixit/releases) for detailed changes.
