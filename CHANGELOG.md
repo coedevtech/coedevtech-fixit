@@ -6,6 +6,15 @@
   - Preserves formatting and `env()` usage
   - Uses modern `[]` syntax for arrays
 
+## [1.9.0](https://github.com/coedevtech/coedevtech-fixit/compare/v1.8.5...v1.9.0) (2025-06-19)
+
+
+### Features
+
+* added multiple email alert and verify env command ([f2da361](https://github.com/coedevtech/coedevtech-fixit/commit/f2da36167241199f40bdd22c908b66dd5750b582))
+* added multiple email alert and verify env command ([800caac](https://github.com/coedevtech/coedevtech-fixit/commit/800caac67bba94515d1ed7a35a6910e6773c6fa7))
+* added multiple email alert and verify env command ([f7e7dc1](https://github.com/coedevtech/coedevtech-fixit/commit/f7e7dc159fdf4f79f8b3b171d607663b0d5a7654))
+
 ## [1.8.5](https://github.com/coedevtech/coedevtech-fixit/compare/v1.8.4...v1.8.5) (2025-06-17)
 
 
