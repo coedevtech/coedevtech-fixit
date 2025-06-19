@@ -8,12 +8,14 @@
 
 - ✅ Logs all unhandled exceptions to the database
 - 🔐 Optional field-level encryption using Laravel Crypt
+- 📧 **Multi-recipient email alerts support**
 - ⚙️ Configurable notification system (email + Slack supported)
 - 🧠 AI-powered fix suggestions (optional)
 - 🌪️ Built-in Pest tests
 - 📊 Artisan CLI: `fixit:report` to view, filter, and fix errors
 - ✍️ `fixit:sync-config` to merge missing config keys
 - 🛠️ `fixit:sync-migrations` to publish and run package migrations
+- 🧪 `fixit:verify-config` to validate and auto-patch `.env`
 - 💡 Extensible alert interface (plug your own Discord, webhook, etc.)
 
 ---
@@ -22,8 +24,8 @@
 
 | Dependency | Version |
 |------------|---------|
-| **PHP**    | `^8.1` or `^8.2` or `^8.3` |
-| **Laravel**| `^10.x` or `^11.x` or `^12.x` |
+| **PHP**    | `^8.1`, `^8.2`, or `^8.3` |
+| **Laravel**| `^10.x`, `^11.x`, or `^12.x` |
 
 ---
 
@@ -57,10 +59,22 @@ To check for missing config keys later, run:
 php artisan fixit:sync-config
 ```
 
+To verify and auto-patch missing `.env` keys:
+
+```bash
+php artisan fixit:verify-config
+php artisan fixit:verify-config --fix
+```
+
 To automatically append missing keys using short `[]` array syntax:
 
 ```bash
 php artisan fixit:sync-config --write
+```
+
+For JSON output (CI pipelines):
+```bash
+php artisan fixit:verify-config --json
 ```
 
 ---
@@ -91,21 +105,25 @@ This will return the original value (array or string), decrypted securely.
 
 ## 🗃️ Database Table
 
-`fixIt` creates a `fixit_errors` table with the following columns:
+Includes fields like:
 
 - `id`
 - `url`
 - `request`
 - `response`
 - `ip`
-- `status` (`not_fixed`, `fixed`)
+- `exception`
+- `file`
+- `line`
+- `trace`
 - `fingerprint`
-- `last_seen_at`
 - `occurrences`
+- `last_seen_at`
+- `environment`
+- `status` (`not_fixed`, `fixed`)
 - `created_at`, `updated_at`
 
-You can change the table name in the config.
-
+Table name is not configurable.
 ---
 
 ## ⚒️ Publishing Migrations
@@ -136,19 +154,30 @@ To receive an email when an error is logged:
 >
 > Otherwise, queued emails will not be sent and may block request execution depending on your queue setup.
 
+Configure in `.env`:
+
+```env
+FIXIT_SEND_EMAIL=true
+FIXIT_NOTIFICATION_EMAIL=admin@example.com,dev@example.com
+FIXIT_ALLOW_MULTIPLE_EMAILS=true
+```
+> Emails will be sent to all valid addresses if `FIXIT_ALLOW_MULTIPLE_EMAILS` is true.
+
 ---
 
 ## 🧠 AI Suggestions (Optional)
 
 `fixIt` supports AI-powered suggestions for fixing logged errors. This is completely optional.
 
-To enable:
+Enable AI-powered suggestions:
 
-1. Set `FIXIT_AI_ENABLED=true` in your `.env`
-2. Set either:
-   - `FIXIT_AI_API_URL` (for your custom AI proxy)
-   - or `FIXIT_AI_API_KEY` (to use OpenAI directly)
-3. Set `FIXIT_AI_PROVIDER=openai` or `fixit-proxy`
+```env
+FIXIT_AI_ENABLED=true
+FIXIT_AI_API_KEY=sk-xxx    # or use FIXIT_AI_API_URL
+FIXIT_AI_PROVIDER=openai   # or fixit-proxy, groq, etc.
+FIXIT_AI_MODEL=gpt-3.5-turbo # or gpt-4 based on your provider
+FIXIT_AI_API_URL=https://www.proxy-url.com # Used for fixit-proxy
+```
 
 If enabled, suggestions are included in:
 - 📧 Email alerts
